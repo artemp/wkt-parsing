@@ -109,10 +109,12 @@ struct test_mapnik
     void operator()()
     {
         for (unsigned i=0;i<iter_;++i) {
+            mapnik::wkt_parser parse_wkt;
             BOOST_FOREACH(std::string const& wkt, wkt_)
             {
                 boost::ptr_vector<mapnik::geometry_type> paths;
-                if (!mapnik::from_wkt(wkt, paths))
+                //if (!mapnik::from_wkt(wkt, paths)) // slow, grammar per parse
+                if (!parse_wkt.parse(wkt, paths)) // fast, grammar re-use
                 {
                     throw std::runtime_error("Failed to parse WKT");
                 }
@@ -149,42 +151,6 @@ void geos_error(const char* format, ...)
 #endif
 }
 
-class geos_feature_ptr
-{
-public:
-    geos_feature_ptr ()
-        : feat_ (NULL)
-    {
-    }
-
-    explicit geos_feature_ptr (GEOSGeometry* const feat)
-        : feat_ (feat)
-    {
-    }
-
-    ~geos_feature_ptr ()
-    {
-        if (feat_ != NULL)
-            GEOSGeom_destroy(feat_);
-    }
-
-    void set_feature (GEOSGeometry* const feat)
-    {
-        if (feat_ != NULL)
-            GEOSGeom_destroy(feat_);
-
-        feat_ = feat;
-    }
-
-    GEOSGeometry* operator*()
-    {
-        return feat_;
-    }
-
-private:
-    GEOSGeometry* feat_;
-};
-
 
 struct test_geos
 {
@@ -206,20 +172,22 @@ struct test_geos
 
     void operator()()
     {
-        for (unsigned i=0;i<iter_;++i) {
-            BOOST_FOREACH(std::string const& wkt, wkt_)
-            {
-                geos_feature_ptr geometry;
-                geometry.set_feature(GEOSGeomFromWKT(wkt.c_str()));
-                if (*geometry == NULL /*|| ! GEOSisValid(*geometry)*/)
-                {
-                    throw std::runtime_error("GEOS Plugin: invalid <wkt> geometry specified");
-                }
-                size_t len;
-                unsigned char* buf = GEOSGeomToWKB_buf(*geometry,&len);
-                free(buf);
-            }
-        }
+         GEOSWKTReader * reader = GEOSWKTReader_create();
+         for (unsigned i=0;i<iter_;++i) {
+             BOOST_FOREACH(std::string const& wkt, wkt_)
+             {
+                 GEOSGeometry* geometry = GEOSWKTReader_read(reader, wkt.c_str());
+                 if (!geometry)
+                 {
+                     throw std::runtime_error("GEOS Plugin: invalid <wkt> geometry specified");
+                 }
+                 size_t len;
+                 unsigned char* buf = GEOSGeomToWKB_buf(geometry,&len);
+                 free(buf);
+                 GEOSGeom_destroy(geometry);
+             }
+         }
+         GEOSWKTReader_destroy(reader);
     }
 };
 
