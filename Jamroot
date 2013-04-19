@@ -1,0 +1,22 @@
+local MAPNIK_DIR = "/opt/mapnik" ;
+local MAPNIK_DEPS_DIR = "/opt/mapnik_deps" ;
+local BOOST_DIR = "/opt/boost-trunk" ;
+
+lib mapnik : : <name>mapnik <search>$(MAPNIK_DIR)/lib ;
+lib system : : <name>boost_system <search>$(BOOST_DIR)/lib ;
+lib timer : chrono : <name>boost_timer <search>$(BOOST_DIR)/lib ;
+lib chrono : system : <name>boost_chrono <search>$(BOOST_DIR)/lib ;
+
+lib geos_c : : <name>geos_c <search>$(MAPNIK_DEPS_DIR)/lib ;
+
+exe wkt-parsing-test
+    :
+    main.cpp
+    .//timer
+    .//mapnik
+    .//geos_c
+    :
+    <include>$(BOOST_DIR)/include
+    <include>$(MAPNIK_DIR)/include
+    <include>$(MAPNIK_DEPS_DIR)/include
+    ;
