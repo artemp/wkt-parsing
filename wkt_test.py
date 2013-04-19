@@ -17,16 +17,18 @@ if __name__ == "__main__":
     else:
         num_runs = 1000
 
-    print "Shapely ...."
-    start = time.clock()
-    for i in range(num_runs):
-        geometry = loads(sys.argv[1])
-    elapsed = (time.clock() - start)
-    print>>sys.stderr,"elapsed=",elapsed
+    for k in range(2):
 
-    print "Mapnik ...."
-    start = time.clock()
-    for i in range(num_runs):
-        geometry = mapnik.Path.from_wkt(sys.argv[1])
-    elapsed = (time.clock() - start)
-    print>>sys.stderr,"elapsed=",elapsed
+        print "Shapely ...."
+        start = time.clock()
+        for i in range(num_runs):
+            geometry = loads(sys.argv[1])
+        elapsed = (time.clock() - start)
+        print>>sys.stderr,"elapsed=",elapsed
+
+        print "Mapnik ...."
+        start = time.clock()
+        for i in range(num_runs):
+            geometry = mapnik.Path.from_wkt(sys.argv[1])
+        elapsed = (time.clock() - start)
+        print>>sys.stderr,"elapsed=",elapsed
