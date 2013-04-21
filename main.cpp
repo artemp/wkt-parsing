@@ -8,6 +8,10 @@
 
 // geos
 #include <geos_c.h>
+// boost geometry
+#include <boost/geometry/geometry.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
 
 int main( int argc, char** argv)
 {
@@ -30,6 +34,36 @@ int main( int argc, char** argv)
     std::cerr << "Parsing ^^ " << NUM_RUNS << " times." << std::endl;
     for (int k=0; k<2;++k)
     {
+
+        {
+            std::cerr << "Boost.Geometry wkt-parser" << std::endl;
+            boost::timer::auto_cpu_timer t;
+            unsigned count = 0;
+            GEOSWKTReader * reader = GEOSWKTReader_create();
+            if (reader)
+            {
+                for (unsigned i = 0; i < NUM_RUNS; ++i)
+                {
+                    typedef boost::geometry::model::point
+                        <
+                        double, 2, boost::geometry::cs::cartesian
+                    > point;
+                    typedef boost::geometry::model::polygon<point > polygon;
+
+                    polygon geometry;
+                    try {
+                        boost::geometry::read_wkt(wkt, geometry);
+                    }
+                    catch (std::exception const& ex)
+                    {
+                        std::cerr << ex.what() << std::endl;
+                    }
+                }
+            }
+            std::cerr << "count=" << count << std::endl;
+        }
+
+
         {
             std::cerr << "GEOS wkt-parser" << std::endl;
             boost::timer::auto_cpu_timer t;
