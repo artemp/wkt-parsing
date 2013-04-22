@@ -39,25 +39,21 @@ int main( int argc, char** argv)
             std::cerr << "Boost.Geometry wkt-parser" << std::endl;
             boost::timer::auto_cpu_timer t;
             unsigned count = 0;
-            GEOSWKTReader * reader = GEOSWKTReader_create();
-            if (reader)
+            for (unsigned i = 0; i < NUM_RUNS; ++i)
             {
-                for (unsigned i = 0; i < NUM_RUNS; ++i)
-                {
-                    typedef boost::geometry::model::point
-                        <
-                        double, 2, boost::geometry::cs::cartesian
-                    > point;
-                    typedef boost::geometry::model::polygon<point > polygon;
+                typedef boost::geometry::model::point
+                    <
+                    double, 2, boost::geometry::cs::cartesian
+                > point;
+                typedef boost::geometry::model::polygon<point > polygon;
 
-                    polygon geometry;
-                    try {
+                polygon geometry;
+                try {
                         boost::geometry::read_wkt(wkt, geometry);
-                    }
-                    catch (std::exception const& ex)
-                    {
-                        std::cerr << ex.what() << std::endl;
-                    }
+                }
+                catch (std::exception const& ex)
+                {
+                    std::cerr << ex.what() << std::endl;
                 }
             }
             std::cerr << "count=" << count << std::endl;
