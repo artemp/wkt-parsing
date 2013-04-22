@@ -1,5 +1,7 @@
 import mapnik
-from shapely.wkt import dumps, loads
+
+from shapely.wkt import loads
+from shapely.wkb import dumps
 #from osgeo import ogr
 #from osgeo import gdal
 import time
@@ -33,6 +35,8 @@ if __name__ == "__main__":
         start = time.clock()
         for i in range(num_runs):
             geometry = loads(sys.argv[1])
+            wkb = dumps(geometry)
+
         elapsed = (time.clock() - start)
         print>>sys.stderr,"elapsed=",elapsed
 
@@ -40,5 +44,6 @@ if __name__ == "__main__":
         start = time.clock()
         for i in range(num_runs):
             geometry = mapnik.Path.from_wkt(sys.argv[1])
+            wkb = geometry.to_wkb(mapnik.wkbByteOrder.XDR)
         elapsed = (time.clock() - start)
         print>>sys.stderr,"elapsed=",elapsed
