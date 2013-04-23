@@ -1,4 +1,3 @@
-
 from shapely.wkt import loads
 from shapely.wkb import dumps
 from osgeo import ogr
@@ -45,8 +44,10 @@ if __name__ == "__main__":
 
         print "Mapnik ...."
         start = time.clock()
+        reader = mapnik.WKTReader()
         for i in range(num_runs):
-            geometry = mapnik.Path.from_wkt(sys.argv[1])
+            #geometry = mapnik.Path.from_wkt(sys.argv[1])
+            geometry = reader.read(sys.argv[1])
             wkb = geometry.to_wkb(mapnik.wkbByteOrder.XDR)
 
         elapsed = (time.clock() - start)
